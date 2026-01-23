@@ -55,24 +55,47 @@ if ($selected_time) {
             continue;
         }
         
+        // Проверяем бронирования со статусом "в процессе"
         $stmt = $pdo->prepare("
-            SELECT id, start_time, end_time, status 
-            FROM bookings 
-            WHERE id_machine = ? 
-            AND date = ? 
-            AND status = 'забронировано' 
-            AND start_time < ? 
+            SELECT id, start_time, end_time, status
+            FROM bookings
+            WHERE id_machine = ?
+            AND date = ?
+            AND status = 'в процессе'
+            AND start_time < ?
             AND end_time > ?
         ");
         
         $stmt->execute([
-            $machine['id'], 
-            $selected_date, 
-            $end_time, 
+            $machine['id'],
+            $selected_date,
+            $end_time,
             $selected_time
         ]);
         
         $conflicting_booking = $stmt->fetch();
+        
+        // Если нет активных бронирований, проверяем забронированные
+        if (!$conflicting_booking) {
+            $stmt = $pdo->prepare("
+                SELECT id, start_time, end_time, status
+                FROM bookings
+                WHERE id_machine = ?
+                AND date = ?
+                AND status = 'забронировано'
+                AND start_time < ?
+                AND end_time > ?
+            ");
+            
+            $stmt->execute([
+                $machine['id'],
+                $selected_date,
+                $end_time,
+                $selected_time
+            ]);
+            
+            $conflicting_booking = $stmt->fetch();
+        }
         
         if ($conflicting_booking) {
             $booked_machines[] = $machine['id'];

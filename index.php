@@ -23,20 +23,39 @@ $machine_bookings = [];
 
 foreach ($machines as $machine) {
     if ($machine['status'] == 'занято') {
-        $stmt = $pdo->prepare("SELECT * 
-                               FROM bookings 
-                               WHERE id_machine = ? 
-                               AND date = ? 
-                               AND status = 'забронировано' 
-                               AND start_time <= ? 
+        // Ищем активное бронирование (в процессе)
+        $stmt = $pdo->prepare("SELECT *
+                               FROM bookings
+                               WHERE id_machine = ?
+                               AND date = ?
+                               AND status = 'в процессе'
+                               AND start_time <= ?
                                AND end_time > ?");
         
-        $stmt->execute([$machine['id'], 
-                        $current_date, 
-                        $current_time, 
+        $stmt->execute([$machine['id'],
+                        $current_date,
+                        $current_time,
                         $current_time]);
         
         $booking = $stmt->fetch();
+        
+        // Если нет активного бронирования, ищем забронированное
+        if (!$booking) {
+            $stmt = $pdo->prepare("SELECT *
+                                   FROM bookings
+                                   WHERE id_machine = ?
+                                   AND date = ?
+                                   AND status = 'забронировано'
+                                   AND start_time <= ?
+                                   AND end_time > ?");
+            
+            $stmt->execute([$machine['id'],
+                            $current_date,
+                            $current_time,
+                            $current_time]);
+            
+            $booking = $stmt->fetch();
+        }
         
         if ($booking) {
             $machine_bookings[$machine['id']] = $booking;

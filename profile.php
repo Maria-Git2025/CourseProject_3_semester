@@ -35,24 +35,47 @@ if (isset($_POST['cancel_booking'])) {
         $current_time = date('H:i:s');
         $current_date = date('Y-m-d');
         
+        // Проверяем активные бронирования (в процессе)
         $stmt = $pdo->prepare("
-            SELECT id 
-            FROM bookings 
-            WHERE id_machine = ? 
-            AND status = 'забронировано' 
-            AND date = ? 
-            AND start_time <= ? 
+            SELECT id
+            FROM bookings
+            WHERE id_machine = ?
+            AND status = 'в процессе'
+            AND date = ?
+            AND start_time <= ?
             AND end_time > ?
         ");
         
         $stmt->execute([
-            $booking['id_machine'], 
-            $current_date, 
-            $current_time, 
+            $booking['id_machine'],
+            $current_date,
+            $current_time,
             $current_time
         ]);
         
         $other_bookings = $stmt->fetch();
+        
+        // Если нет активных бронирований, проверяем забронированные
+        if (!$other_bookings) {
+            $stmt = $pdo->prepare("
+                SELECT id
+                FROM bookings
+                WHERE id_machine = ?
+                AND status = 'забронировано'
+                AND date = ?
+                AND start_time <= ?
+                AND end_time > ?
+            ");
+            
+            $stmt->execute([
+                $booking['id_machine'],
+                $current_date,
+                $current_time,
+                $current_time
+            ]);
+            
+            $other_bookings = $stmt->fetch();
+        }
         
         if (!$other_bookings) {
             $stmt = $pdo->prepare("

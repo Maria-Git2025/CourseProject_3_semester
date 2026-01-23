@@ -83,12 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $update_prev_stmt->execute([$user_id, $prev_booking['id']]);
                 }
                 
-                $stmt = $pdo->prepare("
-                    UPDATE machines
-                    SET status = 'занято'
-                    WHERE id = ?
-                ");
-                $stmt->execute([$machine_id]);
+                // Не обновляем статус машины немедленно
+                // Статус будет обновлен скриптом update_machine_status.php в нужное время
                 
                 $success = "Машина успешно забронирована!";
             } else {

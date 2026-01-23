@@ -115,7 +115,6 @@ $issues = $stmt->fetchAll();
             <thead>
                 <tr>
                     <th>Машина</th>
-                    <th>Тип</th>
                     <th>Текущий статус</th>
                     <th>Новый статус</th>
                     <th>Действие</th>
@@ -125,7 +124,6 @@ $issues = $stmt->fetchAll();
                 <?php foreach ($machines as $machine): ?>
                     <tr>
                         <td><?= htmlspecialchars($machine['name']) ?></td>
-                        <td><?= $machine['type'] ?></td>
                         <td><?= $machine['status'] ?></td>
                         <form method="POST">
                             <td>

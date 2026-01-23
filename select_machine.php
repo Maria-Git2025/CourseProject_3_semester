@@ -55,7 +55,6 @@ if ($selected_time) {
             continue;
         }
         
-        // Проверяем бронирования со статусом "в процессе"
         $stmt = $pdo->prepare("
             SELECT id, start_time, end_time, status
             FROM bookings
@@ -75,7 +74,6 @@ if ($selected_time) {
         
         $conflicting_booking = $stmt->fetch();
         
-        // Если нет активных бронирований, проверяем забронированные
         if (!$conflicting_booking) {
             $stmt = $pdo->prepare("
                 SELECT id, start_time, end_time, status

@@ -23,7 +23,6 @@ $machine_bookings = [];
 
 foreach ($machines as $machine) {
     if ($machine['status'] == 'занято') {
-        // Ищем активное бронирование (в процессе)
         $stmt = $pdo->prepare("SELECT *
                                FROM bookings
                                WHERE id_machine = ?
@@ -39,7 +38,6 @@ foreach ($machines as $machine) {
         
         $booking = $stmt->fetch();
         
-        // Если нет активного бронирования, ищем забронированное
         if (!$booking) {
             $stmt = $pdo->prepare("SELECT *
                                    FROM bookings

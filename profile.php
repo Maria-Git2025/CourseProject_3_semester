@@ -35,7 +35,6 @@ if (isset($_POST['cancel_booking'])) {
         $current_time = date('H:i:s');
         $current_date = date('Y-m-d');
         
-        // Проверяем активные бронирования (в процессе)
         $stmt = $pdo->prepare("
             SELECT id
             FROM bookings
@@ -55,7 +54,6 @@ if (isset($_POST['cancel_booking'])) {
         
         $other_bookings = $stmt->fetch();
         
-        // Если нет активных бронирований, проверяем забронированные
         if (!$other_bookings) {
             $stmt = $pdo->prepare("
                 SELECT id
